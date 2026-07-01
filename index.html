@@ -137,7 +137,7 @@ Chart.defaults.font.size=11;
 let DATA=JSON.parse(JSON.stringify(FALLBACK));
 let activeRange=60;
 const charts={};
-const CACHE_KEY="econ_fred_v10";
+const CACHE_KEY="econ_fred_v11";
 const CACHE_TTL=12*3600*1000;
 
 function getKey(){return localStorage.getItem("fred_api_key")||FRED_KEY;}
@@ -205,7 +205,7 @@ async function loadFredData(force){
 
   setStatus("cached","Fetching from FRED...");
   const errors=[],res={};
-  const SERIES=["UNRATE","PAYEMS","CPIAUCSL","HOUST","DGS5","DGS10","MPRIME","DSPIC96","PCESC96","USD3MTD156N","MCOILWTICO","DTWEXBGS","SOFR","TB3MS"];
+  const SERIES=["UNRATE","PAYEMS","CPIAUCSL","HOUST","DGS5","DGS10","MPRIME","DSPIC96","PCESC96","MCOILWTICO","DTWEXBGS","SOFR","TB3MS"];
 
   await Promise.allSettled(SERIES.map(async s=>{
     try{res[s]=await fredFetch(s,key);}
@@ -369,11 +369,11 @@ function buildChartCards(){
     <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Non-Farm Payrolls</div><div class="chart-sub">Monthly net job additions (thousands)</div></div><div><div class="chart-badge-val" style="color:#34d399">${n?(n.v>=0?"+":"")+n.v.toLocaleString()+"K":"--"}</div><div class="chart-badge-chg">${n?n.d:""}</div></div></div><div class="chart-wrap"><canvas id="cN"></canvas></div></div>
     <div class="chart-card"><div class="chart-header"><div><div class="chart-title">CPI Inflation</div><div class="chart-sub">Year-over-year consumer price change</div></div><div><div class="chart-badge-val" style="color:#f87171">${inf?inf.v.toFixed(1)+"%":"--"}</div><div class="chart-badge-chg">${inf?inf.d:""}</div></div></div><div class="chart-wrap"><canvas id="cI"></canvas></div></div>
     <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Housing Starts</div><div class="chart-sub">New residential construction (thousands)</div></div><div><div class="chart-badge-val" style="color:#fbbf24">${h?h.v.toLocaleString()+"K":"--"}</div><div class="chart-badge-chg">${h?h.d:""}</div></div></div><div class="chart-wrap"><canvas id="cH"></canvas></div></div>
-    <div class="chart-card wide"><div class="chart-header"><div><div class="chart-title">Interest Rates</div><div class="chart-sub">5-Year &amp; 10-Year Treasury &nbsp;&middot;&nbsp; Prime Rate</div></div><div><div class="chart-badge-val" style="color:#4f8ef7">${rt?rt.ten_yr.toFixed(2)+"% / "+rt.prime.toFixed(2)+"%":"--"}</div><div class="chart-badge-chg">${rt?"10-yr / Prime &middot; "+rt.d:""}</div></div></div><div class="chart-wrap tall"><canvas id="cR"></canvas></div></div>
-    <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Real Disposable Income</div><div class="chart-sub">Billions chained 2012 dollars (SAAR)</div></div><div><div class="chart-badge-val" style="color:#2dd4bf">${di?"$"+(di.v/1000).toFixed(1)+"T":"--"}</div><div class="chart-badge-chg">${di?di.d:""}</div></div></div><div class="chart-wrap"><canvas id="cD"></canvas></div></div>
-    <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Consumer Services Spending</div><div class="chart-sub">Real PCE Services, chained 2017 dollars</div></div><div><div class="chart-badge-val" style="color:#60a5fa">${co?"$"+(co.v/1000).toFixed(1)+"T":"--"}</div><div class="chart-badge-chg">${co?co.d:""}</div></div></div><div class="chart-wrap"><canvas id="cC"></canvas></div></div>
-    <div class="chart-card"><div class="chart-header"><div><div class="chart-title">WTI Crude Oil</div><div class="chart-sub">Monthly average price per barrel</div></div><div><div class="chart-badge-val" style="color:#f97316">${cr?"$"+cr.v.toFixed(1):"--"}</div><div class="chart-badge-chg">${cr?cr.d:""}</div></div></div><div class="chart-wrap"><canvas id="cCrude"></canvas></div></div>
-    <div class="chart-card"><div class="chart-header"><div><div class="chart-title">USD Trade-Weighted Index</div><div class="chart-sub">Broad goods index (2006=100)</div></div><div><div class="chart-badge-val" style="color:#e879f9">${us?us.v.toFixed(1):"--"}</div><div class="chart-badge-chg">${us?us.d:""}</div></div></div><div class="chart-wrap"><canvas id="cUSD"></canvas></div></div>
+    <div class="chart-card wide"><div class="chart-header"><div><div class="chart-title">Interest Rates</div><div class="chart-sub">5-Year &amp; 10-Year Treasury &nbsp;&middot;&nbsp; Prime Rate</div></div><div><div class="chart-badge-val" style="color:#4f8ef7">${rt?(rt.ten_yr!=null?rt.ten_yr.toFixed(2):"--")+"% / "+(rt.prime!=null?rt.prime.toFixed(2):"--")+"%":"--"}</div><div class="chart-badge-chg">${rt?"10-yr / Prime &middot; "+rt.d:""}</div></div></div><div class="chart-wrap tall"><canvas id="cR"></canvas></div></div>
+    <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Real Disposable Income</div><div class="chart-sub">Billions chained 2012 dollars (SAAR)</div></div><div><div class="chart-badge-val" style="color:#2dd4bf">${di&&di.v!=null?"$"+(di.v/1000).toFixed(1)+"T":"--"}</div><div class="chart-badge-chg">${di?di.d:""}</div></div></div><div class="chart-wrap"><canvas id="cD"></canvas></div></div>
+    <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Consumer Services Spending</div><div class="chart-sub">Real PCE Services, chained 2017 dollars</div></div><div><div class="chart-badge-val" style="color:#60a5fa">${co&&co.v!=null?"$"+(co.v/1000).toFixed(1)+"T":"--"}</div><div class="chart-badge-chg">${co?co.d:""}</div></div></div><div class="chart-wrap"><canvas id="cC"></canvas></div></div>
+    <div class="chart-card"><div class="chart-header"><div><div class="chart-title">WTI Crude Oil</div><div class="chart-sub">Monthly average price per barrel</div></div><div><div class="chart-badge-val" style="color:#f97316">${cr&&cr.v!=null?"$"+cr.v.toFixed(1):"--"}</div><div class="chart-badge-chg">${cr?cr.d:""}</div></div></div><div class="chart-wrap"><canvas id="cCrude"></canvas></div></div>
+    <div class="chart-card"><div class="chart-header"><div><div class="chart-title">USD Trade-Weighted Index</div><div class="chart-sub">Broad goods index (2006=100)</div></div><div><div class="chart-badge-val" style="color:#e879f9">${us&&us.v!=null?us.v.toFixed(1):"--"}</div><div class="chart-badge-chg">${us?us.d:""}</div></div></div><div class="chart-wrap"><canvas id="cUSD"></canvas></div></div>
   `;
 }
 
