@@ -1,2 +1,0 @@
-# econ-dashboard
-Economics Dashboard
