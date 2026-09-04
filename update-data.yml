@@ -1,0 +1,42 @@
+name: Update FRED data
+
+on:
+  schedule:
+    # 13:17 UTC daily = 9:17am ET in summer, 8:17am ET in winter.
+    # BLS and BEA releases land at 8:30am ET, so this picks them up same morning.
+    - cron: "17 13 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pull series from FRED
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python scripts/fetch_fred.py
+
+      - name: Commit data.json if it changed
+        run: |
+          if git diff --quiet -- data.json; then
+            echo "No change in data.json — nothing to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git commit -m "chore: refresh FRED data ($(date -u +%Y-%m-%d))"
+          git push
